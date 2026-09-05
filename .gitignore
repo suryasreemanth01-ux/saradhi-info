@@ -1,0 +1,31 @@
+﻿# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build files
+build/
+dist/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Excel files (optional - keep this if you don't want to commit Excel files)
+# backend/data/*.xlsx
+# !backend/data/.gitkeep
+
+# Backup files
+*.bak

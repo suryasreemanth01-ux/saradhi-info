@@ -1,0 +1,29 @@
+﻿.form-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.form-title {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: #1b5e20;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.form-subtitle {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.form-body {
+  max-width: 500px;
+  margin: 0 auto;
+}

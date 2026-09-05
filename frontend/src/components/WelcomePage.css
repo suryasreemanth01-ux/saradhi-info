@@ -1,0 +1,140 @@
+﻿.welcome-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7f0 0%, #c8e6c9 100%);
+}
+
+.welcome-content {
+  width: 100%;
+  max-width: 900px;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.main-title {
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  color: #1b5e20;
+  font-weight: 800;
+  margin-bottom: 8px;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.sub-title {
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  color: #2e7d32;
+  font-weight: 700;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.description {
+  font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+  color: #424242;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.property-selection {
+  margin: 40px 0;
+}
+
+.selection-title {
+  text-align: center;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  color: #333;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.property-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.property-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 3px solid transparent;
+}
+
+.property-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #2e7d32;
+}
+
+.property-card .card-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.property-card h3 {
+  font-size: 1.3rem;
+  color: #1b5e20;
+  margin-bottom: 8px;
+}
+
+.property-card p {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.select-btn {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.property-card:hover .select-btn {
+  background: #1b5e20;
+  transform: scale(1.05);
+}
+
+.info-footer {
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(46, 125, 50, 0.15);
+}
+
+.footer-text {
+  color: #2e7d32;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.footer-subtext {
+  color: #757575;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .property-cards {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto 40px;
+  }
+}

@@ -1,0 +1,52 @@
+﻿.success-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.success-card {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+.success-icon {
+  font-size: 72px;
+  margin-bottom: 16px;
+}
+
+.success-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: #1b5e20;
+  font-weight: 800;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.success-message {
+  font-size: 1.2rem;
+  color: #2e7d32;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.success-submessage {
+  font-size: 1rem;
+  color: #424242;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .success-card {
+    padding: 32px 20px;
+  }
+  
+  .success-icon {
+    font-size: 56px;
+  }
+}
