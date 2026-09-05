@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import WelcomePage from './components/WelcomePage';
 import IndependentHouseForm from './components/IndependentHouseForm';
@@ -80,7 +80,7 @@ function App() {
   };
 
   return (
-    <div className='App'>
+    <div className="App">
       {currentPage === 'welcome' && (
         <WelcomePage onSelectProperty={selectPropertyType} />
       )}

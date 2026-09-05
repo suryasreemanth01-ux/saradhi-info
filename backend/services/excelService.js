@@ -1,4 +1,4 @@
-﻿const XLSX = require('xlsx');
+const XLSX = require('xlsx');
 const path = require('path');
 const fs = require('fs');
 
@@ -28,7 +28,7 @@ const initializeExcel = () => {
     const ws = XLSX.utils.aoa_to_sheet([headers]);
     XLSX.utils.book_append_sheet(wb, ws, 'Owners');
     XLSX.writeFile(wb, EXCEL_PATH);
-    console.log('✅ Excel file initialized at:', EXCEL_PATH);
+    console.log('Excel file initialized at:', EXCEL_PATH);
   }
 };
 
@@ -84,7 +84,7 @@ const addOwnerRecord = async (ownerData) => {
     // Convert to worksheet
     const newWs = XLSX.utils.json_to_sheet(existingData);
     
-    // Auto-size columns (optional but nice)
+    // Auto-size columns
     const columns = Object.keys(newRecord);
     const colWidths = columns.map(col => ({ wch: Math.max(col.length, 15) }));
     newWs['!cols'] = colWidths;
@@ -95,7 +95,7 @@ const addOwnerRecord = async (ownerData) => {
     // Write file
     XLSX.writeFile(wb, EXCEL_PATH);
     
-    console.log(`✅ New record added: ${newRecord['Owner Name']} (ID: ${newRecord.ID})`);
+    console.log('New record added:', newRecord['Owner Name'], '(ID:', newRecord.ID + ')');
     
     return {
       success: true,

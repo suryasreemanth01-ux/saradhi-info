@@ -23,9 +23,10 @@ app.get('/api/health', (req, res) => {
 
 // Serve static files from the React frontend in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  const buildPath = path.join(__dirname, '../frontend/build');
+  app.use(express.static(buildPath));
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+    res.sendFile(path.join(buildPath, 'index.html'));
   });
 }
 
@@ -40,6 +41,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(?? Saradhi Info Backend running on port );
-  console.log(?? http://localhost:);
+  console.log('Saradhi Info Backend running on port ' + PORT);
+  console.log('http://localhost:' + PORT);
 });
