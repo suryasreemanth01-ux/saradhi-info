@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -40,6 +40,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(🚀 Saradhi Info Backend running on port );
-  console.log(📍 http://localhost:);
+  console.log(?? Saradhi Info Backend running on port );
+  console.log(?? http://localhost:);
 });
