@@ -29,3 +29,9 @@ Thumbs.db
 
 # Backup files
 *.bak
+# Google Sheets credentials
+backend/config/credentials.json
+backend/config/token.json
+backend/config/*.json
+*.log
+.env
