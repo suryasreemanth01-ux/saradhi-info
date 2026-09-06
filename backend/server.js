@@ -21,6 +21,18 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Saradhi Info Backend is running' });
 });
 
+// Debug endpoint - check if Google token is set
+app.get('/api/debug', (req, res) => {
+  const token = process.env.GOOGLE_TOKEN;
+  res.json({
+    googleTokenSet: !!token,
+    tokenLength: token ? token.length : 0,
+    tokenPreview: token ? token.substring(0, 50) + '...' : 'null',
+    nodeEnv: process.env.NODE_ENV || 'not set',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Serve static files from the React frontend in production
 if (process.env.NODE_ENV === 'production') {
   const buildPath = path.join(__dirname, '../frontend/build');
