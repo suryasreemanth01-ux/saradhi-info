@@ -6,6 +6,9 @@ import ApartmentForm from './components/ApartmentForm';
 import ReviewPage from './components/ReviewPage';
 import SuccessPage from './components/SuccessPage';
 
+// Your Google Apps Script Web App URL
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyG_jK1qFNLaX8THG5phxfIfF9bUqNxDPTEhc53Gh2e5F9GUj7dMPyenII3DSHfN3Aq/exec';
+
 function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
   const [propertyType, setPropertyType] = useState(null);
@@ -51,11 +54,12 @@ function App() {
   const submitForm = async () => {
     console.log('=== SUBMIT FORM CALLED ===');
     console.log('Form data:', formData);
-    console.log('API endpoint:', '/api/owners');
+    console.log('Sending to:', GOOGLE_SCRIPT_URL);
     
     try {
-      const response = await fetch('/api/owners', {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -64,19 +68,13 @@ function App() {
 
       console.log('Response status:', response.status);
       
-      const result = await response.json();
-      console.log('Response data:', result);
-
-      if (result.success) {
-        setCurrentPage('success');
-      } else {
-        const errorMsg = result.message || 'Unknown error occurred';
-        console.error('Submission failed:', result);
-        alert('? Submission Failed: ' + errorMsg);
-      }
+      // For no-cors mode, we can't read the response body
+      // So we assume success if we get here
+      setCurrentPage('success');
+      
     } catch (error) {
-      console.error('? Error submitting form:', error);
-      alert('? Error: ' + error.message + '\n\nCheck console for details.');
+      console.error('❌ Error submitting form:', error);
+      alert('❌ Error: ' + error.message + '\n\nCheck console for details.');
     }
   };
 
