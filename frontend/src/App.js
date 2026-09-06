@@ -50,7 +50,8 @@ function App() {
 
   const submitForm = async () => {
     try {
-      const response = await fetch('/api/owners', {
+      // Updated to use the correct backend route
+      const response = await fetch('/api/submit', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,10 +61,10 @@ function App() {
 
       const result = await response.json();
 
-      if (result.success) {
+      if (response.ok) {
         setCurrentPage('success');
       } else {
-        alert(result.message || 'Something went wrong. Please try again.');
+        alert(result.error || 'Something went wrong. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
