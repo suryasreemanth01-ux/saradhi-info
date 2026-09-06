@@ -1,102 +1,153 @@
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config();
+const readline = require('readline');
 
-const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
-const SHEET_NAME = 'Sheet1'; 
-const KEYFILEPATH = path.join(__dirname, '..', 'credentials.json');
-const TOKEN_PATH = path.join(__dirname, '..', 'token.json');
+const SPREADSHEET_ID = '10oDFsERbXjWaQIswjAAvbMN-WTvQpDIZ53FPaP-YIIU';
+const CREDENTIALS_PATH = path.join(__dirname, '../config/credentials.json');
+const TOKEN_PATH = path.join(__dirname, '../config/token.json');
 
-// 1. Load OAuth2 Client
-function getOAuthClient() {
-  const credentials = JSON.parse(fs.readFileSync(KEYFILEPATH));
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
-  return new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
-}
-
-// 2. Check if we have a saved token, if not, ask for it
-async function authorize() {
-  const oAuth2Client = getOAuthClient();
-
-  // Check if we already saved the token from a previous run
-  if (fs.existsSync(TOKEN_PATH)) {
-    oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
-    return oAuth2Client;
-  }
-
-  // If no token, generate the URL and ask for the code
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-
-  console.log('=========================================');
-  console.log('Authorize this app by visiting this URL:');
-  console.log(authUrl);
-  console.log('=========================================');
-
-  // Use readline to ask for input in the terminal
-  const readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve, reject) => {
-    readline.question('Paste the code from the URL here: ', (code) => {
-      readline.close();
-      oAuth2Client.getToken(code, (err, token) => {
-        if (err) return reject(err);
-        oAuth2Client.setCredentials(token);
-        // Save the token for future use!
-        fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
-        console.log('✅ Token saved! You will not need to do this again.');
-        resolve(oAuth2Client);
-      });
-    });
-  });
-}
-
-// 3. Add data to the sheet
-async function addOwnerRecord(data) {
+// Load OAuth2 client
+const getAuthClient = async () => {
   try {
-    const authClient = await authorize();
-    const sheets = google.sheets({ version: 'v4', auth: authClient });
-
-    const headers = [['Property Type', 'House Number', 'Building Name', 'Flat Number', 'Owner Name', 'Owner Phone']];
-    const values = [[data.propertyType, data.houseNumber, data.buildingName, data.flatNumber, data.ownerName, data.ownerPhone]];
-
-    // Check if headers exist
-    const getResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A1:F1`,
-    });
-
-    if (!getResponse.data.values) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${SHEET_NAME}!A1:F1`,
-        valueInputOption: 'RAW',
-        resource: { values: headers },
-      });
-      console.log('✅ Headers created.');
+    if (!fs.existsSync(CREDENTIALS_PATH)) {
+      console.error('? Credentials file not found at:', CREDENTIALS_PATH);
+      throw new Error('Credentials file not found');
     }
 
-    // Append data
+    const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH));
+    const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
+    const oAuth2Client = new google.auth.OAuth2(
+      client_id, client_secret, redirect_uris[0]
+    );
+
+    // For Render: Use environment variable token if available
+    if (process.env.GOOGLE_TOKEN) {
+      try {
+        const token = JSON.parse(process.env.GOOGLE_TOKEN);
+        oAuth2Client.setCredentials(token);
+        console.log('? Using token from environment variable');
+        return oAuth2Client;
+      } catch (e) {
+        console.log('?? Could not parse GOOGLE_TOKEN env var');
+      }
+    }
+
+    // For local: Use token.json file
+    if (fs.existsSync(TOKEN_PATH)) {
+      const token = JSON.parse(fs.readFileSync(TOKEN_PATH));
+      oAuth2Client.setCredentials(token);
+      return oAuth2Client;
+    }
+
+    // If no token found, request new one
+    const token = await getAccessToken(oAuth2Client);
+    oAuth2Client.setCredentials(token);
+    return oAuth2Client;
+  } catch (error) {
+    console.error('Error getting auth client:', error);
+    throw error;
+  }
+};
+
+// Get access token
+const getAccessToken = (oAuth2Client) => {
+  return new Promise((resolve, reject) => {
+    const authUrl = oAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/spreadsheets'],
+      prompt: 'consent'
+    });
+    
+    console.log('=========================================');
+    console.log('?? Google Sheets Authentication Required');
+    console.log('=========================================');
+    console.log('1. Open this URL in your browser:');
+    console.log(authUrl);
+    console.log('2. Log in with your Google account');
+    console.log('3. Grant permission');
+    console.log('4. Copy the code from the URL');
+    console.log('=========================================');
+    
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    
+    rl.question('Paste the code here: ', (code) => {
+      rl.close();
+      oAuth2Client.getToken(code, (err, token) => {
+        if (err) {
+          console.error('Error getting token:', err);
+          reject(err);
+        }
+        fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
+        console.log('? Token saved successfully!');
+        resolve(token);
+      });
+    });
+  });
+};
+
+// Get Sheets client
+const getSheetsClient = async () => {
+  const auth = await getAuthClient();
+  return google.sheets({ version: 'v4', auth });
+};
+
+// Add owner record
+const addOwnerRecord = async (ownerData) => {
+  try {
+    const sheets = await getSheetsClient();
+    
+    const values = [[
+      new Date().toISOString(),
+      ownerData.propertyType,
+      ownerData.houseNumber || '-',
+      ownerData.buildingName || '-',
+      ownerData.flatNumber || '-',
+      ownerData.ownerName,
+      ownerData.ownerPhone,
+      new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+    ]];
+    
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A1:F1`,
+      range: 'Sheet1!A:H',
       valueInputOption: 'RAW',
-      resource: { values: values },
+      requestBody: { values },
     });
-
-    console.log('✅ Data successfully written!');
-    return { success: true, message: 'Data added successfully.' };
-
+    
+    console.log('? Record added to Google Sheets');
+    return {
+      success: true,
+      message: 'Record added to Google Sheets'
+    };
   } catch (error) {
-    console.error('❌ Error:', error.message);
-    return { success: false, message: error.message };
+    console.error('Error adding to Google Sheets:', error);
+    return {
+      success: false,
+      message: 'Failed to add record to Google Sheets: ' + error.message
+    };
   }
-}
+};
 
-module.exports = { addOwnerRecord };
+// Get all records
+const getAllRecords = async () => {
+  try {
+    const sheets = await getSheetsClient();
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Sheet1!A:H',
+    });
+    return response.data.values || [];
+  } catch (error) {
+    console.error('Error reading from Google Sheets:', error);
+    return [];
+  }
+};
+
+module.exports = {
+  addOwnerRecord,
+  getAllRecords
+};

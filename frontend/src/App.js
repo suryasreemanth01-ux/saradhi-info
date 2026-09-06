@@ -49,9 +49,12 @@ function App() {
   };
 
   const submitForm = async () => {
+    console.log('=== SUBMIT FORM CALLED ===');
+    console.log('Form data:', formData);
+    console.log('API endpoint:', '/api/owners');
+    
     try {
-      // Updated to use the correct backend route
-      const response = await fetch('/api/submit', { 
+      const response = await fetch('/api/owners', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,16 +62,21 @@ function App() {
         body: JSON.stringify(formData),
       });
 
+      console.log('Response status:', response.status);
+      
       const result = await response.json();
+      console.log('Response data:', result);
 
-      if (response.ok) {
+      if (result.success) {
         setCurrentPage('success');
       } else {
-        alert(result.error || 'Something went wrong. Please try again.');
+        const errorMsg = result.message || 'Unknown error occurred';
+        console.error('Submission failed:', result);
+        alert('? Submission Failed: ' + errorMsg);
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Something went wrong. Please check your connection and try again.');
+      console.error('? Error submitting form:', error);
+      alert('? Error: ' + error.message + '\n\nCheck console for details.');
     }
   };
 
