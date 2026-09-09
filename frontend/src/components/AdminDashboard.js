@@ -63,24 +63,24 @@ const AdminDashboard = () => {
   };
 
   const deleteSelected = async () => {
-    if (selectedRecords.length === 0) {
-      alert('Please select records to delete.');
-      return;
-    }
-    if (window.confirm(Are you sure you want to delete  record(s)?)) {
-      try {
-        for (const id of selectedRecords) {
-          await deleteDoc(doc(db, 'owners', id));
-        }
-        setRecords(records.filter(record => !selectedRecords.includes(record.id)));
-        setSelectedRecords([]);
-        alert('Selected records deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting records:', error);
-        alert('Error deleting records: ' + error.message);
+  if (selectedRecords.length === 0) {
+    alert('Please select records to delete.');
+    return;
+  }
+  if (window.confirm(`Are you sure you want to delete ${selectedRecords.length} record(s)?`)) {
+    try {
+      for (const id of selectedRecords) {
+        await deleteDoc(doc(db, 'owners', id));
       }
+      setRecords(records.filter(record => !selectedRecords.includes(record.id)));
+      setSelectedRecords([]);
+      alert('Selected records deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting records:', error);
+      alert('Error deleting records: ' + error.message);
     }
-  };
+  }
+};
 
   const toggleSelect = (id) => {
     if (selectedRecords.includes(id)) {
@@ -98,37 +98,37 @@ const AdminDashboard = () => {
     }
   };
 
-  const exportCSV = () => {
-    if (records.length === 0) {
-      alert('No records to export!');
-      return;
-    }
+ const exportCSV = () => {
+  if (records.length === 0) {
+    alert('No records to export!');
+    return;
+  }
 
-    const headers = ['ID', 'Property Type', 'House Number', 'Building Name', 'Flat Number', 'Owner Name', 'Owner Phone', 'Submitted At'];
-    const csvData = [headers.join(',')];
-    
-    records.forEach(record => {
-      const row = [
-        record.id || '',
-        record.propertyType || '',
-        record.houseNumber || '',
-        record.buildingName || '',
-        record.flatNumber || '',
-        record.ownerName || '',
-        record.ownerPhone || '',
-        record.timestamp || ''
-      ];
-      csvData.push(row.join(','));
-    });
+  const headers = ['ID', 'Property Type', 'House Number', 'Building Name', 'Flat Number', 'Owner Name', 'Owner Phone', 'Submitted At'];
+  const csvData = [headers.join(',')];
+  
+  records.forEach(record => {
+    const row = [
+      record.id || '',
+      record.propertyType || '',
+      record.houseNumber || '',
+      record.buildingName || '',
+      record.flatNumber || '',
+      record.ownerName || '',
+      record.ownerPhone || '',
+      record.timestamp || ''
+    ];
+    csvData.push(row.join(','));
+  });
 
-    const blob = new Blob([csvData.join('\n')], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = saradhi-info-.csv;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+  const blob = new Blob([csvData.join('\n')], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `saradhi-info-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+};
 
   const filteredRecords = records.filter(record => {
     const search = searchTerm.toLowerCase();
