@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import './AdminDashboard.css';
@@ -11,7 +11,6 @@ const AdminDashboard = () => {
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Admin password - CHANGE THIS to your own password
   const ADMIN_PASSWORD = 'saradhi2024';
 
   const handleLogin = (e) => {
@@ -63,24 +62,24 @@ const AdminDashboard = () => {
   };
 
   const deleteSelected = async () => {
-  if (selectedRecords.length === 0) {
-    alert('Please select records to delete.');
-    return;
-  }
-  if (window.confirm(`Are you sure you want to delete ${selectedRecords.length} record(s)?`)) {
-    try {
-      for (const id of selectedRecords) {
-        await deleteDoc(doc(db, 'owners', id));
-      }
-      setRecords(records.filter(record => !selectedRecords.includes(record.id)));
-      setSelectedRecords([]);
-      alert('Selected records deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting records:', error);
-      alert('Error deleting records: ' + error.message);
+    if (selectedRecords.length === 0) {
+      alert('Please select records to delete.');
+      return;
     }
-  }
-};
+    if (window.confirm(`Are you sure you want to delete ${selectedRecords.length} record(s)?`)) {
+      try {
+        for (const id of selectedRecords) {
+          await deleteDoc(doc(db, 'owners', id));
+        }
+        setRecords(records.filter(record => !selectedRecords.includes(record.id)));
+        setSelectedRecords([]);
+        alert('Selected records deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting records:', error);
+        alert('Error deleting records: ' + error.message);
+      }
+    }
+  };
 
   const toggleSelect = (id) => {
     if (selectedRecords.includes(id)) {
@@ -91,62 +90,67 @@ const AdminDashboard = () => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedRecords.length === filteredRecords.length) {
+    const filtered = getFilteredRecords();
+    if (selectedRecords.length === filtered.length) {
       setSelectedRecords([]);
     } else {
-      setSelectedRecords(filteredRecords.map(record => record.id));
+      setSelectedRecords(filtered.map(record => record.id));
     }
   };
 
- const exportCSV = () => {
-  if (records.length === 0) {
-    alert('No records to export!');
-    return;
-  }
+  const exportCSV = () => {
+    if (records.length === 0) {
+      alert('No records to export!');
+      return;
+    }
 
-  const headers = ['ID', 'Property Type', 'House Number', 'Building Name', 'Flat Number', 'Owner Name', 'Owner Phone', 'Submitted At'];
-  const csvData = [headers.join(',')];
-  
-  records.forEach(record => {
-    const row = [
-      record.id || '',
-      record.propertyType || '',
-      record.houseNumber || '',
-      record.buildingName || '',
-      record.flatNumber || '',
-      record.ownerName || '',
-      record.ownerPhone || '',
-      record.timestamp || ''
-    ];
-    csvData.push(row.join(','));
-  });
+    const headers = ['ID', 'Property Type', 'House Number', 'Building Name', 'Flat Number', 'Owner Name', 'Owner Phone', 'Submitted At'];
+    const csvData = [headers.join(',')];
+    
+    records.forEach(record => {
+      const row = [
+        record.id || '',
+        record.propertyType || '',
+        record.houseNumber || '',
+        record.buildingName || '',
+        record.flatNumber || '',
+        record.ownerName || '',
+        record.ownerPhone || '',
+        record.timestamp || ''
+      ];
+      csvData.push(row.join(','));
+    });
 
-  const blob = new Blob([csvData.join('\n')], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `saradhi-info-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-};
+    const blob = new Blob([csvData.join('\n')], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `saradhi-info-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
-  const filteredRecords = records.filter(record => {
-    const search = searchTerm.toLowerCase();
-    return (
-      (record.ownerName && record.ownerName.toLowerCase().includes(search)) ||
-      (record.ownerPhone && record.ownerPhone.includes(search)) ||
-      (record.houseNumber && record.houseNumber.includes(search)) ||
-      (record.buildingName && record.buildingName.toLowerCase().includes(search)) ||
-      (record.flatNumber && record.flatNumber.includes(search))
-    );
-  });
+  const getFilteredRecords = () => {
+    return records.filter(record => {
+      const search = searchTerm.toLowerCase();
+      return (
+        (record.ownerName && record.ownerName.toLowerCase().includes(search)) ||
+        (record.ownerPhone && record.ownerPhone.includes(search)) ||
+        (record.houseNumber && record.houseNumber.includes(search)) ||
+        (record.buildingName && record.buildingName.toLowerCase().includes(search)) ||
+        (record.flatNumber && record.flatNumber.includes(search))
+      );
+    });
+  };
+
+  const filteredRecords = getFilteredRecords();
 
   // Login screen
   if (!isAuthenticated) {
     return (
       <div className="admin-login">
         <div className="login-card">
-          <h2>?? Admin Login</h2>
+          <h2>🔐 Admin Login</h2>
           <p>Enter the admin password to access the dashboard</p>
           <form onSubmit={handleLogin}>
             <input
@@ -166,20 +170,12 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard">
       <div className="admin-header">
-        <h1>?? Saradhi Info - Admin Dashboard</h1>
+        <h1>🏡 Saradhi Info - Admin Dashboard</h1>
         <div className="admin-actions">
-          <button onClick={exportCSV} className="btn-export">
-            ?? Export CSV
-          </button>
-          <button onClick={deleteSelected} className="btn-delete-selected">
-            ??? Delete Selected ({selectedRecords.length})
-          </button>
-          <button onClick={fetchRecords} className="btn-refresh">
-            ?? Refresh
-          </button>
-          <button onClick={() => setIsAuthenticated(false)} className="btn-logout">
-            ?? Logout
-          </button>
+          <button onClick={exportCSV} className="btn-export">📥 Export CSV</button>
+          <button onClick={deleteSelected} className="btn-delete-selected">🗑️ Delete Selected ({selectedRecords.length})</button>
+          <button onClick={fetchRecords} className="btn-refresh">🔄 Refresh</button>
+          <button onClick={() => setIsAuthenticated(false)} className="btn-logout">🚪 Logout</button>
         </div>
       </div>
 
@@ -205,7 +201,7 @@ const AdminDashboard = () => {
       <div className="admin-controls">
         <input
           type="text"
-          placeholder="?? Search by name, phone, house number..."
+          placeholder="🔍 Search by name, phone, house number..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -267,7 +263,7 @@ const AdminDashboard = () => {
                         className="btn-delete"
                         title="Delete this record"
                       >
-                        ???
+                        🗑️
                       </button>
                     </td>
                   </tr>
