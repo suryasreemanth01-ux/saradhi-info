@@ -18,6 +18,8 @@ const ApartmentForm = ({ formData, updateFormData, goToReview, goBack }) => {
 
     if (!formData.flatNumber || formData.flatNumber.trim() === '') {
       newErrors.flatNumber = 'Flat number is required';
+    } else if (!/^\d+$/.test(formData.flatNumber)) {
+      newErrors.flatNumber = 'Flat number must contain only numbers';
     }
 
     if (!formData.ownerName || formData.ownerName.trim() === '') {
@@ -36,7 +38,15 @@ const ApartmentForm = ({ formData, updateFormData, goToReview, goBack }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    updateFormData({ [name]: value });
+    
+    // For flat number: only allow digits
+    if (name === 'flatNumber') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      updateFormData({ [name]: numericValue });
+    } else {
+      updateFormData({ [name]: value });
+    }
+    
     if (errors[name]) {
       setErrors({ ...errors, [name]: '' });
     }
@@ -49,89 +59,93 @@ const ApartmentForm = ({ formData, updateFormData, goToReview, goBack }) => {
   };
 
   return (
-    <div className='form-page'>
-      <div className='container'>
-        <div className='card'>
-          <div className='form-header'>
-            <h2 className='form-title'>Apartment Details 🏢</h2>
-            <p className='form-subtitle'>Please fill in all required fields</p>
+    <div className="form-page">
+      <div className="container">
+        <div className="card">
+          <div className="form-header">
+            <h2 className="form-title">Apartment Details 🏢</h2>
+            <p className="form-subtitle">Please fill in all required fields</p>
           </div>
 
-          <div className='form-body'>
-            <div className='form-group'>
+          <div className="form-body">
+            <div className="form-group">
               <label>
-                Building Name <span className='required'>*</span>
+                Building Name <span className="required">*</span>
               </label>
               <input
-                type='text'
-                name='buildingName'
+                type="text"
+                name="buildingName"
                 value={formData.buildingName}
                 onChange={handleInputChange}
-                placeholder='Name of the apartment building'
+                placeholder="Name of the apartment building"
                 className={errors.buildingName ? 'error' : ''}
               />
               {errors.buildingName && (
-                <span className='error-message'>{errors.buildingName}</span>
+                <span className="error-message">{errors.buildingName}</span>
               )}
             </div>
 
-            <div className='form-group'>
+            <div className="form-group">
               <label>
-                Flat Number <span className='required'>*</span>
+                Flat Number <span className="required">*</span>
               </label>
               <input
-                type='text'
-                name='flatNumber'
+                type="text"
+                name="flatNumber"
                 value={formData.flatNumber}
                 onChange={handleInputChange}
-                placeholder='e.g., 101, A-202, 3B'
+                placeholder="Enter numbers only (e.g., 101)"
                 className={errors.flatNumber ? 'error' : ''}
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
               {errors.flatNumber && (
-                <span className='error-message'>{errors.flatNumber}</span>
+                <span className="error-message">{errors.flatNumber}</span>
               )}
             </div>
 
-            <div className='form-group'>
+            <div className="form-group">
               <label>
-                Owner Name <span className='required'>*</span>
+                Owner Name <span className="required">*</span>
               </label>
               <input
-                type='text'
-                name='ownerName'
+                type="text"
+                name="ownerName"
                 value={formData.ownerName}
                 onChange={handleInputChange}
-                placeholder='Full name of the owner'
+                placeholder="Full name of the owner"
                 className={errors.ownerName ? 'error' : ''}
               />
               {errors.ownerName && (
-                <span className='error-message'>{errors.ownerName}</span>
+                <span className="error-message">{errors.ownerName}</span>
               )}
             </div>
 
-            <div className='form-group'>
+            <div className="form-group">
               <label>
-                Owner Phone Number <span className='required'>*</span>
+                Owner Phone Number <span className="required">*</span>
               </label>
               <input
-                type='tel'
-                name='ownerPhone'
+                type="tel"
+                name="ownerPhone"
                 value={formData.ownerPhone}
                 onChange={handleInputChange}
-                placeholder='10-digit mobile number'
-                maxLength='10'
+                placeholder="10-digit mobile number"
+                maxLength="10"
                 className={errors.ownerPhone ? 'error' : ''}
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
               {errors.ownerPhone && (
-                <span className='error-message'>{errors.ownerPhone}</span>
+                <span className="error-message">{errors.ownerPhone}</span>
               )}
             </div>
 
-            <div className='button-group'>
-              <button className='btn-secondary' onClick={goBack}>
+            <div className="button-group">
+              <button className="btn-secondary" onClick={goBack}>
                 ← BACK
               </button>
-              <button className='btn-primary' onClick={handleContinue}>
+              <button className="btn-primary" onClick={handleContinue}>
                 REVIEW INFORMATION →
               </button>
             </div>

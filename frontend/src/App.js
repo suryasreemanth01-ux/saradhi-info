@@ -5,13 +5,13 @@ import IndependentHouseForm from './components/IndependentHouseForm';
 import ApartmentForm from './components/ApartmentForm';
 import ReviewPage from './components/ReviewPage';
 import SuccessPage from './components/SuccessPage';
-
-// Your Google Apps Script Web App URL
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyG_jK1qFNLaX8THG5phxfIfF9bUqNxDPTEhc53Gh2e5F9GUj7dMPyenII3DSHfN3Aq/exec';
+import { db } from './firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
   const [propertyType, setPropertyType] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     propertyType: '',
     houseNumber: '',
@@ -52,29 +52,21 @@ function App() {
   };
 
   const submitForm = async () => {
-    console.log('=== SUBMIT FORM CALLED ===');
-    console.log('Form data:', formData);
-    console.log('Sending to:', GOOGLE_SCRIPT_URL);
-    
+    setIsSubmitting(true);
     try {
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      // Adding data to Firestore
+      await addDoc(collection(db, 'properties'), {
+        ...formData,
+        timestamp: serverTimestamp()
       });
-
-      console.log('Response status:', response.status);
       
-      // For no-cors mode, we can't read the response body
-      // So we assume success if we get here
+      // If successful, go to success page
       setCurrentPage('success');
-      
     } catch (error) {
-      console.error('❌ Error submitting form:', error);
-      alert('❌ Error: ' + error.message + '\n\nCheck console for details.');
+      console.error("Error adding document: ", error);
+      alert("There was an error submitting the form. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -113,6 +105,7 @@ function App() {
           submitForm={submitForm}
           editForm={editForm}
           goBack={goBackToWelcome}
+          isSubmitting={isSubmitting}
         />
       )}
       {currentPage === 'success' && (
